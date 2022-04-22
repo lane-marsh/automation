@@ -1,5 +1,3 @@
-import csv
-import openpyxl
 
 
 class ObjectifyXL(object):
@@ -20,6 +18,7 @@ class ObjectifyXL(object):
         description:        name of the sheet with the table
                             defaults to the active sheet when the file is opened
         """
+        import openpyxl
 
         self.data = {}
         self.headers = []
@@ -70,6 +69,7 @@ class ObjectifyCSV(object):
         input parameter:    path
         description:        relative path from the python file running to the target csv file
         """
+        import csv
 
         self.data = {}
         self.headers = []

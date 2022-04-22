@@ -97,8 +97,6 @@ class BayesCat(object):
                         score_add = self._cat_scores[cat][this_str] / self._cat_counts[cat]
                         score_add = score_add * (2 ** (this_str.count(' ')))
                         this_score += score_add
-            # this_score *= self._cat_counts[cat] / self._total_entries
-            print(cat, this_score)
             if this_score > top_score:
                 top_cat = cat
                 top_score = this_score
@@ -115,7 +113,8 @@ if __name__ == "__main__":
               'orange',
               'banana',
               'banana',
-              'pear']
+              'pear',
+              'broccoli']
     abouts = ['this fruit is red',
               'this fruit is yellow',
               'this fruit is yellow',
@@ -124,11 +123,12 @@ if __name__ == "__main__":
               'this fruit is orange',
               'this fruit is yellow',
               'this fruit is yellow',
-              'this fruit is green']
+              'this fruit is green',
+              'this vegetable is green']
 
     ignore_words = [
         'this', 'the', 'is'
     ]
 
     fruit_predictor = BayesCat(fruits, abouts, benign_words=ignore_words)
-    print(fruit_predictor.guess('i have myself a green fruit'))
+    print(fruit_predictor.guess('i have myself a green vegetable'))
