@@ -13,5 +13,9 @@ A library that puts to use machine learning and artificial intelligence concepts
 * Dependencies: python 3.7; Libraries: csv, openpyxl
 * This is a library that converts data sources to objects that can be manipulated in python.
 
+### poker.py
+* Dependencies: python 3.7; Libraries: random
+* This file emulates a poker game
+
 ## Authors
 Lane Marsh (lmmarsh43@gmail.com) (https://www.linkedin.com/in/lane-marsh-1a129963/)
