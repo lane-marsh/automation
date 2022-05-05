@@ -92,13 +92,14 @@ class ObjectifyCSV(object):
                         col_count += 1
                 line_count += 1
 
-    def get_by_field(self, filt, return_fields=None):
+    def get_by_field(self, filter, return_fields=None):
         """
         input parameter:    filter
-        description:
+        description:        dictionary that matches field names to a value that we filter by
 
         optional input:     return_fields
-        description:
+        description:        use if only specific fields are wanted to be returned.
+                            defaults to returning all fields.
         """
 
         if return_fields is None:
@@ -110,8 +111,8 @@ class ObjectifyCSV(object):
         # search for any key that matches a filter and add it to the keys set
         for header, sets in self.data.items():
             for key, value in sets.items():
-                if header in filt:
-                    if filt[header] == value:
+                if header in filter:
+                    if filter[header] == value:
                         keys.add(key)
 
         for key in keys:

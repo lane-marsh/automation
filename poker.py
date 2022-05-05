@@ -183,8 +183,10 @@ class TexasHoldEm(PokerGame):
         for _ in range(self.cards_dealt):
             for player in self.players:
                 player.deal_card(self.deck.pop(0))
-        self.players[self.small_blind].bet(self.blinds[0])
-        self.players[self.big_blind].bet(self.blinds[1])
+        sb = self.players[self.small_blind]
+        bb = self.players[self.big_blind]
+        self.make_bet(sb, self.blinds[0])
+        self.make_bet(bb, self.blinds[1])
 
     def flop(self):
         self.round = 'pre turn'
@@ -271,7 +273,7 @@ if __name__ == '__main__':
 
     guys_game = TexasHoldEm(the_guys, [50, 100])
     guys_game.deal_cards()
-
+    print(guys_game.pot.pot_size)
     guys_game.flop()
     guys_game.turn()
     guys_game.river()
