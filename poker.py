@@ -27,7 +27,7 @@ class PokerGame(object):
 
     def shuffle(self):
         for player in self.players:
-            player.muck_hand()
+            player.fold()
         random.shuffle(self.deck)
 
     def seat_players(self):
@@ -44,82 +44,11 @@ class PokerGame(object):
                     subsequent_players.seat -= 1
                 self.player_count -= 1
 
-
-class HoldEmPot(object):
-    """
-    emulates the pot of a poker game
-    """
-
-    def __init__(self):
-        self.pre_flop = {}
-        self.pre_turn = {}
-        self.pre_river = {}
-        self.post_river = {}
-        self.pot_size = 0
-
-    def bet_pre_flop(self, gambler, chips):
-        if gambler in self.pre_flop:
-            self.pre_flop[gambler] += chips
-        else:
-            self.pre_flop[gambler] = chips
-        self.pot_size += chips
-
-    def bet_pre_turn(self, gambler, chips):
-        if gambler in self.pre_turn:
-            self.pre_turn[gambler] += chips
-        else:
-            self.pre_turn[gambler] = chips
-        self.pot_size += chips
-
-    def bet_pre_river(self, gambler, chips):
-        if gambler in self.pre_river:
-            self.pre_river[gambler] += chips
-        else:
-            self.pre_river[gambler] = chips
-        self.pot_size += chips
-
-    def bet_post_river(self, gambler, chips):
-        if gambler in self.post_river:
-            self.post_river[gambler] += chips
-        else:
-            self.post_river[gambler] = chips
-        self.pot_size += chips
-
-    def divvy(self, rankings):
-        for winner in rankings:
-            if winner in self.pre_flop:
-                winnings = self.pre_flop[winner]
-                for gambler in self.pre_flop:
-                    winner.add_chips(winnings)
-                    self.pre_flop[gambler] -= winnings
-                    self.pot_size -= winnings
-            if winner in self.pre_turn:
-                winnings = self.pre_turn[winner]
-                for gambler in self.pre_turn:
-                    winner.add_chips(winnings)
-                    self.pre_turn[gambler] -= winnings
-                    self.pot_size -= winnings
-            if winner in self.pre_river:
-                winnings = self.pre_river[winner]
-                for gambler in self.pre_river:
-                    winner.add_chips(winnings)
-                    self.pre_river[gambler] -= winnings
-                    self.pot_size -= winnings
-            if winner in self.post_river:
-                winnings = self.post_river[winner]
-                for gambler in self.post_river:
-                    winner.add_chips(winnings)
-                    self.post_river[gambler] -= winnings
-                    self.pot_size -= winnings
-            if self.pot_size == 0:
-                self.__reset()
-                break
-
-    def __reset(self):
-        self.pre_flop = {}
-        self.pre_turn = {}
-        self.pre_river = {}
-        self.post_river = {}
+    def evaluate(self):
+        rankings = []
+        for player in self.players:
+            rankings.append([player])
+        return rankings
 
 
 class TexasHoldEm(PokerGame):
@@ -148,8 +77,86 @@ class TexasHoldEm(PokerGame):
         self.big_blind = 1
         self.__rotate_blinds()
         self.blinds = blinds
-        self.pot = HoldEmPot()
+        self.pot = self.HoldEmPot()
         self.round = 'pre flop'
+
+    class HoldEmPot(object):
+        """
+        emulates the pot of a poker game
+        """
+
+        def __init__(self):
+            self.pre_flop = {}
+            self.pre_turn = {}
+            self.pre_river = {}
+            self.post_river = {}
+            self.pot_size = 0
+
+        def bet_pre_flop(self, gambler, chips):
+            if gambler in self.pre_flop:
+                self.pre_flop[gambler] += chips
+            else:
+                self.pre_flop[gambler] = chips
+            self.pot_size += chips
+
+        def bet_pre_turn(self, gambler, chips):
+            if gambler in self.pre_turn:
+                self.pre_turn[gambler] += chips
+            else:
+                self.pre_turn[gambler] = chips
+            self.pot_size += chips
+
+        def bet_pre_river(self, gambler, chips):
+            if gambler in self.pre_river:
+                self.pre_river[gambler] += chips
+            else:
+                self.pre_river[gambler] = chips
+            self.pot_size += chips
+
+        def bet_post_river(self, gambler, chips):
+            if gambler in self.post_river:
+                self.post_river[gambler] += chips
+            else:
+                self.post_river[gambler] = chips
+            self.pot_size += chips
+
+        def divvy(self, rankings):
+            for rank in rankings:
+                count = len(rank)
+                for winner in rank:
+                    if winner in self.pre_flop:
+                        winnings = self.pre_flop[winner]
+                        for gambler in self.pre_flop:
+                            winner.add_chips(winnings)
+                            self.pre_flop[gambler] -= winnings
+                            self.pot_size -= winnings
+                    if winner in self.pre_turn:
+                        winnings = self.pre_turn[winner]
+                        for gambler in self.pre_turn:
+                            winner.add_chips(winnings)
+                            self.pre_turn[gambler] -= winnings
+                            self.pot_size -= winnings
+                    if winner in self.pre_river:
+                        winnings = self.pre_river[winner]
+                        for gambler in self.pre_river:
+                            winner.add_chips(winnings)
+                            self.pre_river[gambler] -= winnings
+                            self.pot_size -= winnings
+                    if winner in self.post_river:
+                        winnings = self.post_river[winner]
+                        for gambler in self.post_river:
+                            winner.add_chips(winnings)
+                            self.post_river[gambler] -= winnings
+                            self.pot_size -= winnings
+                if self.pot_size == 0:
+                    self.__reset()
+                    break
+
+        def __reset(self):
+            self.pre_flop = {}
+            self.pre_turn = {}
+            self.pre_river = {}
+            self.post_river = {}
 
     def __rotate_blinds(self):
         if self.dealer + 1 == self.player_count:
@@ -183,6 +190,8 @@ class TexasHoldEm(PokerGame):
         for _ in range(self.cards_dealt):
             for player in self.players:
                 player.deal_card(self.deck.pop(0))
+        for player in self.players:
+            player.in_hand = True
         sb = self.players[self.small_blind]
         bb = self.players[self.big_blind]
         self.make_bet(sb, self.blinds[0])
@@ -236,6 +245,7 @@ class Player(object):
         self.chips = chips
         self.hand = []
         self.seat = -1
+        self.in_hand = False
 
     def bet(self, val):
         if val > self.chips:
@@ -252,10 +262,11 @@ class Player(object):
     def chip_count(self):
         return self.chips
 
-    def muck_hand(self, show=False):
+    def fold(self, show=False):
         if show:
             print(self.hand)
         self.hand = []
+        self.in_hand = False
 
     def deal_card(self, card):
         self.hand.append(card)

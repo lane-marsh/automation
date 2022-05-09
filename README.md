@@ -5,16 +5,16 @@ My directory of automation! The files here are meant to be practical and flexibl
 
 ## Files
 ### AIMLaning.py
-* Dependencies: python 3.7
+* Dependencies: python 3.7 (or subsequent)
 * File name is short for Artificial Intelligence / Machine Laning (ha).
 A library that puts to use machine learning and artificial intelligence concepts.
 
 ### dataCrunch.py
-* Dependencies: python 3.7; Libraries: csv, openpyxl
+* Dependencies: python 3.7 (or subsequent); Libraries: csv, openpyxl
 * This is a library that converts data sources to objects that can be manipulated in python.
 
 ### poker.py
-* Dependencies: python 3.7; Libraries: random
+* Dependencies: python 3.7 (or subsequent); Libraries: random
 * This file emulates a poker game
 
 ## Authors
