@@ -46,6 +46,15 @@ class PokerGame(object):
 
     def evaluate(self):
         rankings = []
+        # straight flush check
+        # four of a kind check
+        # full house check
+        # flush check
+        # straight check
+        # 3 of a kind check
+        # 2 + 2 check
+        # 2 of a kind check
+        # high card check
         for player in self.players:
             rankings.append([player])
         return rankings
@@ -98,14 +107,18 @@ class TexasHoldEm(PokerGame):
 
         def divvy(self, rankings):
             for rank in rankings:
+                max_bet = 0
                 for winner in rank:
-                    divisor = 0
-                    for person in rank:
-                        divisor += self.contributions[person]
-                    ratio = self.contributions[winner] / divisor
-                    winnings = (self.pot_size * ratio)
-                    winner.add_chips(winnings)
-                    self.pot_size -= winnings
+                    if self.contributions[winner] > max_bet:
+                        max_bet = self.contributions[winner]
+                for winner in rank:
+                    waged = self.contributions[winner]
+                    winners = len(rank)
+                    for player in self.contributions:
+                        winnings = min(waged, self.contributions[player])
+                        self.contributions[player] -= winnings
+                        winner.add_chips(winnings / winners)
+                        self.pot_size -= winnings
 
     def __rotate_blinds(self):
         if self.dealer + 1 == self.player_count:
@@ -122,14 +135,7 @@ class TexasHoldEm(PokerGame):
             self.big_blind = self.small_blind + 1
 
     def make_bet(self, player, chips):
-        if self.round == 'pre flop':
-            self.pot.bet_pre_flop(player, player.bet(chips))
-        elif self.round == 'pre turn':
-            self.pot.bet_pre_turn(player, player.bet(chips))
-        elif self.round == 'pre river':
-            self.pot.bet_pre_river(player, player.bet(chips))
-        elif self.round == 'post river':
-            self.pot.bet_post_river(player, player.bet(chips))
+        self.pot.bet(player, player.bet(chips))
 
     def deal_cards(self):
         self.round = 'pre flop'
@@ -227,13 +233,19 @@ class Player(object):
 if __name__ == '__main__':
 
     player_names = ['p1', 'p2', 'p3', 'p4']
-    the_guys = []
-    for guy in player_names:
-        the_guys.append(Player(guy, 10000))
+    p1 = Player('p1', 10000)
+    p2 = Player('p2', 10000)
+    p3 = Player('p3', 10000)
+    p4 = Player('p4', 10000)
+    the_guys = [p1, p2, p3, p4]
 
     guys_game = TexasHoldEm(the_guys, [50, 100])
     guys_game.deal_cards()
-    print(guys_game.pot.pot_size)
-    guys_game.flop()
-    guys_game.turn()
-    guys_game.river()
+
+    for guy in guys_game.players:
+        print(guy.name, guy.chips)
+
+    guys_game.pot.divvy([[p3], [p2]])
+
+    for guy in guys_game.players:
+        print(guy.name, guy.chips, guy.in_hand, guy.hand)
