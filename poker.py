@@ -19,7 +19,7 @@ class PokerGame(object):
 
     def __make_deck(self):
         suits = ['s', 'c', 'h', 'd']
-        cards = ['2', '3', '4', '5', '6', '7', '8', '9', '0', 'j', 'q', 'k', 'a']
+        cards = ['a', 'k', 'q', 'j', '0', '9', '8', '7', '6', '5', '4', '3', '2']
         for suit in suits:
             for card in cards:
                 self.deck.append(card + suit)
@@ -46,17 +46,58 @@ class PokerGame(object):
 
     def evaluate(self):
         rankings = []
+        still_in = []
+        for player in self.players:
+            if player.in_hand:
+                still_in.append(player)
+
+        cards = ['a', 'k', 'q', 'j', '0', '9', '8', '7', '6', '5', '4', '3', '2', 'a']
+
         # straight flush check
+        for index in range(10):
+            c1 = cards[index]
+            c2 = cards[index + 1]
+            c3 = cards[index + 2]
+            c4 = cards[index + 3]
+            c5 = cards[index + 4]
+            match = []
+            for player in still_in:
+                this_hand = player.hand
+                suit = ''
+                for card in this_hand:
+                    if card[0] == c1:
+                        suit = card[1]
+                if suit != '':
+                    if c2 + suit in this_hand and \
+                       c3 + suit in this_hand and \
+                       c4 + suit in this_hand and \
+                       c5 + suit in this_hand:
+                        match.append(player)
+                        still_in.remove(player)
+            if match:
+                rankings.append(match)
+
         # four of a kind check
+        for number in cards:
+            match = []
+            for player in still_in:
+                score = 0
+                for card in player.hand:
+                    if card[0] == number:
+                        score += 1
+                if score == 4:
+                    match.append(player)
+                    still_in.remove(player)
+
         # full house check
+
         # flush check
         # straight check
         # 3 of a kind check
         # 2 + 2 check
         # 2 of a kind check
         # high card check
-        for player in self.players:
-            rankings.append([player])
+
         return rankings
 
 
@@ -241,6 +282,9 @@ if __name__ == '__main__':
 
     guys_game = TexasHoldEm(the_guys, [50, 100])
     guys_game.deal_cards()
+    guys_game.flop()
+    guys_game.turn()
+    guys_game.river()
 
     for guy in guys_game.players:
         print(guy.name, guy.chips)
@@ -249,3 +293,5 @@ if __name__ == '__main__':
 
     for guy in guys_game.players:
         print(guy.name, guy.chips, guy.in_hand, guy.hand)
+
+    guys_game.evaluate()
