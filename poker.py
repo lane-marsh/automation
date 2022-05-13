@@ -80,21 +80,131 @@ class PokerGame(object):
         # four of a kind check
         for number in cards:
             match = []
+            match_4 = []
             for player in still_in:
                 score = 0
                 for card in player.hand:
                     if card[0] == number:
                         score += 1
                 if score == 4:
-                    match.append(player)
-                    still_in.remove(player)
+                    match_4.append(player)
+            if match_4:
+                for kicker in cards:
+                    match = []
+                    for player_4 in match_4:
+                        if kicker != number:
+                            for card in player_4.hand:
+                                if card[0] == kicker:
+                                    match.append(player_4)
+                                    still_in.remove(player_4)
+            if match:
+                rankings.append(match)
 
         # full house check
+        for number in cards:
+            match = []
+            match_3 = []
+            for player in still_in:
+                score3 = 0
+                for card in player.hand:
+                    if card[0] == number:
+                        score3 += 1
+                if score3 == 3:
+                    match_3.append(player)
+            if match_3:
+                for kicker in cards:
+                    match = []
+                    for player_3 in match_3:
+                        score2 = 0
+                        if kicker != number:
+                            for card in player_3.hand:
+                                if card[0] == kicker:
+                                    score2 += 1
+                            if score2 == 2:
+                                print('full house', player_3)
+                                match.append(player_3)
+                                still_in.remove(player_3)
+                    if match:
+                        rankings.append(match)
 
         # flush check
+        for number in cards:
+            match = []
+            for player in still_in:
+                for card in player.hand:
+                    if card[0] == number:
+                        suit = card[1]
+                        suit_count = 0
+                        for check_suits in player.hand:
+                            if check_suits[1] == suit:
+                                suit_count += 1
+                        if suit_count >= 5:
+                            print('flush', player)
+                            match.append(player)
+                            still_in.remove(player)
+            if match:
+                rankings.append(match)
+
         # straight check
+        for index in range(10):
+            match = []
+            for player in still_in:
+                c1 = cards[index]
+                c1_check = False
+                c2 = cards[index + 1]
+                c2_check = False
+                c3 = cards[index + 2]
+                c3_check = False
+                c4 = cards[index + 3]
+                c4_check = False
+                c5 = cards[index + 4]
+                c5_check = False
+                this_hand = player.hand
+                for card in this_hand:
+                    if card[0] == c1:
+                        c1_check = True
+                    if card[0] == c2:
+                        c2_check = True
+                    if card[0] == c3:
+                        c3_check = True
+                    if card[0] == c4:
+                        c4_check = True
+                    if card[0] == c5:
+                        c5_check = True
+                if c1_check and c2_check and c3_check and c4_check and c5_check:
+                    print('straight', player)
+                    match.append(player)
+                    still_in.remove(player)
+            if match:
+                rankings.append(match)
+
         # 3 of a kind check
-        # 2 + 2 check
+        for number in cards:
+            match = []
+            match_3 = []
+            for player in still_in:
+                score3 = 0
+                for card in player.hand:
+                    if card[0] == number:
+                        score3 += 1
+                if score3 == 3:
+                    match_3.append(player)
+                    still_in.remove(player)
+            if match_3:
+                for kicker1 in cards:
+                    match_k = []
+                    for player_3 in match_3:
+                        score2 = 0
+                        if kicker1 != number:
+                            for card in player_3.hand:
+                                if card[0] == kicker1:
+                                    score2 += 1
+                            if score2 == 2:
+                                match.append(player_3)
+            if match:
+                rankings.append(match)
+
+        # 2 pair check
         # 2 of a kind check
         # high card check
 
@@ -243,6 +353,9 @@ class Player(object):
         self.seat = -1
         self.in_hand = False
 
+    def __repr__(self):
+        return self.name
+
     def bet(self, val):
         if val > self.chips:
             bet = self.chips
@@ -289,9 +402,9 @@ if __name__ == '__main__':
     for guy in guys_game.players:
         print(guy.name, guy.chips)
 
+    print(guys_game.evaluate())
+
     guys_game.pot.divvy([[p3], [p2]])
 
     for guy in guys_game.players:
         print(guy.name, guy.chips, guy.in_hand, guy.hand)
-
-    guys_game.evaluate()
