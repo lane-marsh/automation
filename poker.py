@@ -88,6 +88,7 @@ class PokerGame(object):
                         score += 1
                 if score == 4:
                     match_4.append(player)
+                    still_in.remove(player)
             if match_4:
                 for kicker in cards:
                     match = []
@@ -96,7 +97,6 @@ class PokerGame(object):
                             for card in player_4.hand:
                                 if card[0] == kicker:
                                     match.append(player_4)
-                                    still_in.remove(player_4)
             if match:
                 rankings.append(match)
 
@@ -120,7 +120,7 @@ class PokerGame(object):
                             for card in player_3.hand:
                                 if card[0] == kicker:
                                     score2 += 1
-                            if score2 == 2:
+                            if score2 >= 2:
                                 print('full house', player_3)
                                 match.append(player_3)
                                 still_in.remove(player_3)
@@ -188,19 +188,30 @@ class PokerGame(object):
                     if card[0] == number:
                         score3 += 1
                 if score3 == 3:
+                    print('3 of kind', player)
                     match_3.append(player)
                     still_in.remove(player)
             if match_3:
                 for kicker1 in cards:
-                    match_k = []
-                    for player_3 in match_3:
-                        score2 = 0
-                        if kicker1 != number:
-                            for card in player_3.hand:
+                    if kicker1 != number:
+                        match_k1 = []
+                        match_k2 = []
+                        for player_1 in match_3:
+                            for card in player_1.hand:
                                 if card[0] == kicker1:
-                                    score2 += 1
-                            if score2 == 2:
-                                match.append(player_3)
+                                    match_k1.append(player_1)
+                        if len(match_k1) > 1:
+                            for kicker2 in cards:
+                                if kicker2 != number and kicker2 != kicker1:
+                                    for player_2 in match_k1:
+                                        for card in player_2.hand:
+                                            if card[0] == kicker2:
+                                                match_k2.append(player_2)
+                        if match_k2:
+                            rankings.append(match_k2)
+                        elif match_k1:
+                            rankings.append(match_k1)
+
             if match:
                 rankings.append(match)
 
