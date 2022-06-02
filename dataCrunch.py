@@ -167,7 +167,7 @@ class ObjectifyCSV(object):
 
         file = open(self.path, 'w')
         file.write(self.file_str)
-        writer = csv.writer(file)
+
         if multiple_fields:
             for index in range(entries):
                 entry = []
@@ -176,8 +176,16 @@ class ObjectifyCSV(object):
                         entry.append(in_dict[field][index])
                     else:
                         entry.append(None)
-                print(entry)
                 file.write(arr_to_entry(entry))
+        else:
+            entry = []
+            for field in self.headers:
+                if field in in_dict:
+                    entry.append(in_dict[field])
+                else:
+                    entry.append(None)
+            file.write(arr_to_entry(entry))
+
         file.close()
         return True
 
@@ -195,4 +203,4 @@ if __name__ == "__main__":
         'STATE OR PROVINCE': ['this', 'it'],
         'ZIP': ['function', 'works']
     }
-    test.write_to_file(new_data)
+    # test.write_to_file(new_data)
