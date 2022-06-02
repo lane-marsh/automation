@@ -1,3 +1,5 @@
+import csv
+import openpyxl
 
 
 class ObjectifyXL(object):
@@ -18,7 +20,6 @@ class ObjectifyXL(object):
         description:        name of the sheet with the table
                             defaults to the active sheet when the file is opened
         """
-        import openpyxl
 
         self.data = {}
         self.headers = []
@@ -69,11 +70,16 @@ class ObjectifyCSV(object):
         input parameter:    path
         description:        relative path from the python file running to the target csv file
         """
-        import csv
 
         self.data = {}
         self.headers = []
         self.total_entries = 0
+        self.path = path
+        self.file_str = ''
+
+        with open(path, 'r') as csv_file:
+            self.file_str = csv_file.read()
+        csv_file.close()
 
         with open(path) as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -123,6 +129,58 @@ class ObjectifyCSV(object):
 
         return results
 
+    def write_to_file(self, in_dict):
+        """
+        input parameter:    in_dict
+        description:        dictionary where keys match a field in the data and their
+                            corresponding values are what will populate a new line
+                            option to input multiple fields with one call by populating
+                            dictionary with a list.
+
+        assumption:         if provided key does not match a field, it will be ignored.
+        """
+
+        def arr_to_entry(in_arr):
+            result = ''
+            for value in in_arr:
+                if value:
+                    result += value
+                result += ','
+            return result[:-1] + '\n'
+
+        multiple_fields = None
+        entries = 1
+
+        for key, value in in_dict.items():
+            if type(value) == list:
+                if multiple_fields or multiple_fields is None:
+                    multiple_fields = True
+                    entries = len(value)
+                else:
+                    print('error, incompatible data entry', value, 'expected list')
+                    return False
+            elif multiple_fields:
+                print('error, incompatible data entry')
+                return False
+            else:
+                multiple_fields = False
+
+        file = open(self.path, 'w')
+        file.write(self.file_str)
+        writer = csv.writer(file)
+        if multiple_fields:
+            for index in range(entries):
+                entry = []
+                for field in self.headers:
+                    if field in in_dict:
+                        entry.append(in_dict[field][index])
+                    else:
+                        entry.append(None)
+                print(entry)
+                file.write(arr_to_entry(entry))
+        file.close()
+        return True
+
 
 if __name__ == "__main__":
 
@@ -131,3 +189,10 @@ if __name__ == "__main__":
     QA = test.get_by_field({'CITY': 'Seattle', 'ZIP OR POSTAL CODE': '98109'}, ['ADDRESS', 'BEDS'])
     for each, city in test.data['CITY'].items():
         print(city)
+    new_data = {
+        'SALE TYPE': ['test', 'test1'],
+        'CITY': ['ing', 'hope'],
+        'STATE OR PROVINCE': ['this', 'it'],
+        'ZIP': ['function', 'works']
+    }
+    test.write_to_file(new_data)
