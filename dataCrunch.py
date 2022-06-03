@@ -59,6 +59,37 @@ class ObjectifyXL(object):
                 self.data[title][row_counter] = entry
                 col_counter += 1
 
+    def get_by_field(self, filter, return_fields=None):
+        """
+        input parameter:    filter
+        description:        dictionary that matches field names to a value that we filter by
+
+        optional input:     return_fields
+        description:        use if only specific fields are wanted to be returned.
+                            defaults to returning all fields.
+        """
+
+        if return_fields is None:
+            return_fields = self.headers
+
+        results = []
+        keys = set()
+
+        # search for any key that matches a filter and add it to the keys set
+        for header, sets in self.data.items():
+            for key, value in sets.items():
+                if header in filter:
+                    if filter[header] == value:
+                        keys.add(key)
+
+        for key in keys:
+            row = []
+            for header in return_fields:
+                row.append(self.data[header][key])
+            results.append(row)
+
+        return results
+
 
 class ObjectifyCSV(object):
     """
@@ -203,4 +234,11 @@ if __name__ == "__main__":
         'STATE OR PROVINCE': ['this', 'it'],
         'ZIP': ['function', 'works']
     }
+    new_dater = {
+        'SALE TYPE': 'testing single entry',
+        'CITY': 'Madrid',
+        'STATE OR PROVINCE': 'Guadalajara',
+        'ZIP': "I don't think that is a thing"
+    }
     # test.write_to_file(new_data)
+    # test.write_to_file(new_dater)
