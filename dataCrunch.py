@@ -11,11 +11,9 @@ class ObjectifyXL(object):
         """
         input parameter:    path
         description:        relative path from the python file running to the target xlsx file
-
         input parameter:    head_row
         description:        row in the worksheet with column headers
                             defaults to the first row
-
         input parameter:    sheet
         description:        name of the sheet with the table
                             defaults to the active sheet when the file is opened
@@ -24,9 +22,12 @@ class ObjectifyXL(object):
         self.data = {}
         self.headers = []
         self.total_entries = 0
+        self.path = path
+        self.offset = head_row
 
-        wb = openpyxl.load_workbook(path)
+        wb = openpyxl.load_workbook(self.path)
         self.shape_data(wb, head_row, sheet)
+        wb.close()
 
     def shape_data(self, wb, head_row, sheet):
         """
@@ -59,11 +60,10 @@ class ObjectifyXL(object):
                 self.data[title][row_counter] = entry
                 col_counter += 1
 
-    def get_by_field(self, filter, return_fields=None):
+    def get_by_field(self, filt, return_fields=None):
         """
         input parameter:    filter
         description:        dictionary that matches field names to a value that we filter by
-
         optional input:     return_fields
         description:        use if only specific fields are wanted to be returned.
                             defaults to returning all fields.
@@ -78,8 +78,8 @@ class ObjectifyXL(object):
         # search for any key that matches a filter and add it to the keys set
         for header, sets in self.data.items():
             for key, value in sets.items():
-                if header in filter:
-                    if filter[header] == value:
+                if header in filt:
+                    if filt[header] == value:
                         keys.add(key)
 
         for key in keys:
@@ -89,6 +89,44 @@ class ObjectifyXL(object):
             results.append(row)
 
         return results
+
+    def write_to_file(self, in_dict, sheet_name=None, keys=None):
+        """
+        input parameter:    in_dict
+        description:        dictionary where keys match a field in the data and their
+                            corresponding values are what will populate a new line
+                            option to input multiple fields with one call by populating
+                            dictionary with a list.
+        assumption:         if provided key does not match a field, it will be ignored.
+        """
+
+        file = openpyxl.load_workbook(self.path, read_only=False)
+
+        if sheet_name:
+            table = file['Sheet1']
+        else:
+            table = file.active
+
+        if not keys:
+            # add to end of data file
+            start_key = len(self.data[self.headers[0]]) + 1
+            for header, data_list in in_dict.items():
+                entry_row = start_key + self.offset
+                entry_col = self.headers.index(header) + 1
+                for value in data_list:
+                    table.cell(row=entry_row, column=entry_col).value = value
+                    entry_row += 1
+        else:
+            # keys provided, overwrite existing data fields
+            for header, data_list in in_dict.items():
+                entry_col = self.headers.index(header) + 1
+                for index, value in enumerate(data_list):
+                    entry_row = keys[index] + self.offset
+                    table.cell(row=entry_row, column=entry_col).value = value
+
+        file.save(self.path)
+        file.close()
+        return True
 
 
 class ObjectifyCSV(object):
@@ -133,7 +171,6 @@ class ObjectifyCSV(object):
         """
         input parameter:    filter
         description:        dictionary that matches field names to a value that we filter by
-
         optional input:     return_fields
         description:        use if only specific fields are wanted to be returned.
                             defaults to returning all fields.
@@ -167,7 +204,6 @@ class ObjectifyCSV(object):
                             corresponding values are what will populate a new line
                             option to input multiple fields with one call by populating
                             dictionary with a list.
-
         assumption:         if provided key does not match a field, it will be ignored.
         """
 
@@ -223,22 +259,17 @@ class ObjectifyCSV(object):
 
 if __name__ == "__main__":
 
-    test = ObjectifyCSV('src_files/listings.csv')
+    test = ObjectifyXL('../src_files/xl.xlsx')
 
-    QA = test.get_by_field({'CITY': 'Seattle', 'ZIP OR POSTAL CODE': '98109'}, ['ADDRESS', 'BEDS'])
-    for each, city in test.data['CITY'].items():
-        print(city)
+    keys = [1, 2, 3]
     new_data = {
-        'SALE TYPE': ['test', 'test1'],
-        'CITY': ['ing', 'hope'],
-        'STATE OR PROVINCE': ['this', 'it'],
-        'ZIP': ['function', 'works']
+        'C1': ['x', 'y', 'z'],
+        'C2': ['ing', 'hope', 'x'],
+        'C3': ['this', 'it', 'y']
     }
-    new_dater = {
-        'SALE TYPE': 'testing single entry',
-        'CITY': 'Madrid',
-        'STATE OR PROVINCE': 'Guadalajara',
-        'ZIP': "I don't think that is a thing"
-    }
-    # test.write_to_file(new_data)
-    # test.write_to_file(new_dater)
+    test.write_to_file(new_data, sheet_name='Sheet1', keys=keys)
+
+    # QA = test.get_by_field({'F2': 'a'})
+    # print("QA: " + str(QA))
+    for each, thing in test.data.items():
+        print(each, thing)
