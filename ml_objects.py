@@ -1,5 +1,14 @@
-# Artificial intelligence & machine LANING (ha)
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+"""
+ml_objects.py
+
+A longer description detailing what this specific module or script does, 
+its main classes, functions, and any global architectural considerations.
+
+SPDX-License-Identifier: MIT
+"""
 
 class BayesCat(object):
     """

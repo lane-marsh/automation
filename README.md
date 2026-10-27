@@ -18,4 +18,4 @@ A library that puts to use machine learning and artificial intelligence concepts
 * This file emulates a poker game
 
 ## Authors
-Lane Marsh (lmmarsh43@gmail.com) (https://www.linkedin.com/in/lane-marsh-1a129963/)
+Lane Marsh (lmmarsh43@gmail.com)
