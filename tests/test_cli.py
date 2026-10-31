@@ -7,22 +7,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 from lane_automation.cli import main
-from dataCrunch import ObjectifyCSV as LegacyObjectifyCSV
-from lane_automation.data import ObjectifyCSV
-from lane_automation.games import Player
-from lane_automation.ml import BayesCat
-from ml_objects import BayesCat as LegacyBayesCat
-from poker import Player as LegacyPlayer
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-
-class CompatibilityImportTests(unittest.TestCase):
-    def test_legacy_modules_reexport_package_classes(self):
-        self.assertIs(LegacyObjectifyCSV, ObjectifyCSV)
-        self.assertIs(LegacyBayesCat, BayesCat)
-        self.assertIs(LegacyPlayer, Player)
 
 
 class ClassifyCommandTests(unittest.TestCase):

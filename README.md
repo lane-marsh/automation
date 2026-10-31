@@ -62,11 +62,6 @@ from lane_automation.ml import BayesCat
 `ObjectifyXL` uses `openpyxl`. The CLI currently exposes the classifier; data
 and game tools can be added as CLI subcommands independently.
 
-The original top-level module imports remain available for compatibility:
-`from ml_objects import BayesCat`, `from dataCrunch import ObjectifyCSV`, and
-`from poker import Player`. New code should prefer the `lane_automation`
-package imports shown above.
-
 ## Tests
 
 Run the command-line tests with:

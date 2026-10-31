@@ -11,7 +11,6 @@ setup(
     long_description_content_type="text/markdown",
     python_requires=">=3.7",
     packages=find_packages(include=["lane_automation", "lane_automation.*"]),
-    py_modules=["dataCrunch", "ml_objects", "poker"],
     install_requires=["openpyxl>=3.0"],
     entry_points={
         "console_scripts": [
